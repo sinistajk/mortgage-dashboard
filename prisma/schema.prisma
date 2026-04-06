@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Lead {
+  id                 String    @id @default(cuid())
+  firstName          String
+  phone              String    @unique
+  email              String?
+  source             String?
+  routing            String?
+  score              Int?
+  status             String    @default("in_progress")
+  nextQuestion       String?
+  extractedData      Json?
+  conversation       Json?
+  brokerSummary      String?
+  talkingPoints      Json?
+  flags              Json?
+  recommendedProduct String?
+  qualifiedAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  nurtureEntries NurtureEntry[]
+}
+
+model NurtureEntry {
+  id          String   @id @default(cuid())
+  leadId      String
+  lead        Lead     @relation(fields: [leadId], references: [id])
+  sequence    String
+  dayNumber   Int
+  messageType String
+  channel     String
+  sentAt      DateTime @default(now())
+}

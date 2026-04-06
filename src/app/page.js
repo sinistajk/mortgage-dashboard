@@ -1,65 +1,115 @@
-import Image from "next/image";
+import prisma from '@/lib/db';
+import Link from 'next/link';
 
-export default function Home() {
+// This runs on the server and fetches leads from the database
+async function getLeads() {
+  const leads = await prisma.lead.findMany({
+    orderBy: { createdAt: 'desc' }
+  });
+  return leads;
+}
+
+// Colour coding for each routing type
+function RoutingBadge({ routing }) {
+  const styles = {
+    HOT: 'bg-red-100 text-red-700',
+    WARM: 'bg-orange-100 text-orange-700',
+    COLD: 'bg-blue-100 text-blue-700',
+    default: 'bg-gray-100 text-gray-600',
+  };
+
+  const style = styles[routing] || styles.default;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${style}`}>
+      {routing || 'Qualifying'}
+    </span>
+  );
+}
+
+export default async function DashboardPage() {
+  const leads = await getLeads();
+
+  const hot  = leads.filter(l => l.routing === 'HOT');
+  const warm = leads.filter(l => l.routing === 'WARM');
+  const cold = leads.filter(l => l.routing === 'COLD');
+  const qualifying = leads.filter(l => !l.routing);
+
+  return (
+    <main className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Lead Pipeline</h1>
+          <p className="text-gray-500 mt-1">{leads.length} total leads</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Summary cards */}
+        <div className="grid grid-cols-4 gap-4 mb-8">
+          <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <p className="text-sm text-gray-500">Hot</p>
+            <p className="text-3xl font-bold text-red-600">{hot.length}</p>
+          </div>
+          <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <p className="text-sm text-gray-500">Warm</p>
+            <p className="text-3xl font-bold text-orange-500">{warm.length}</p>
+          </div>
+          <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <p className="text-sm text-gray-500">Cold</p>
+            <p className="text-3xl font-bold text-blue-500">{cold.length}</p>
+          </div>
+          <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <p className="text-sm text-gray-500">Qualifying</p>
+            <p className="text-3xl font-bold text-gray-600">{qualifying.length}</p>
+          </div>
         </div>
-      </main>
-    </div>
+
+        {/* Leads table */}
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="text-left p-4 text-sm font-semibold text-gray-600">Name</th>
+                <th className="text-left p-4 text-sm font-semibold text-gray-600">Source</th>
+                <th className="text-left p-4 text-sm font-semibold text-gray-600">Status</th>
+                <th className="text-left p-4 text-sm font-semibold text-gray-600">Score</th>
+                <th className="text-left p-4 text-sm font-semibold text-gray-600">Routing</th>
+                <th className="text-left p-4 text-sm font-semibold text-gray-600">Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {leads.map(lead => (
+                <tr key={lead.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="p-4">
+                    <Link href={`/leads/${lead.id}`} className="font-medium text-gray-900 hover:text-blue-600">
+                      {lead.firstName}
+                    </Link>
+                  </td>
+                  <td className="p-4 text-sm text-gray-500">{lead.source || '—'}</td>
+                  <td className="p-4 text-sm text-gray-500">{lead.status}</td>
+                  <td className="p-4 text-sm font-medium text-gray-900">
+                    {lead.score !== null ? `${lead.score}/24` : '—'}
+                  </td>
+                  <td className="p-4">
+                    <RoutingBadge routing={lead.routing} />
+                  </td>
+                  <td className="p-4 text-sm text-gray-500">
+                    {new Date(lead.createdAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+              {leads.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center text-gray-400">
+                    No leads yet. Send a test lead to get started.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
   );
 }
