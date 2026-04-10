@@ -1,6 +1,7 @@
 import prisma from '@/lib/db';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import RoutingBadge from '@/components/RoutingBadge';
 
 async function getLead(id) {
   const lead = await prisma.lead.findUnique({
@@ -34,13 +35,7 @@ export default async function LeadPage({ params }) {
               {lead.score !== null && (
                 <p className="text-3xl font-bold text-gray-900">{lead.score}<span className="text-lg text-gray-400">/24</span></p>
               )}
-              {lead.routing && (
-                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                  lead.routing === 'HOT' ? 'bg-red-100 text-red-700' :
-                  lead.routing === 'WARM' ? 'bg-orange-100 text-orange-700' :
-                  'bg-blue-100 text-blue-700'
-                }`}>{lead.routing}</span>
-              )}
+              {lead.routing && <RoutingBadge routing={lead.routing} size="md" />}
             </div>
           </div>
         </div>
