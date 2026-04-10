@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Sidebar from "@/components/Sidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,17 +13,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Mortgage Dashboard",
-  description: "Mortgage lead pipeline and qualification dashboard",
+  title: "Apex Mortgage — AI Dashboard",
+  description: "Mortgage lead pipeline and AI qualification dashboard",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable}`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="antialiased" style={{ background: '#f8fafc' }}>
+        <div className="flex h-screen overflow-hidden">
+          <Sidebar />
+          <main className="flex-1 overflow-y-auto min-w-0" style={{ background: '#f8fafc' }}>
+            {children}
+          </main>
+        </div>
+      </body>
     </html>
   );
 }
