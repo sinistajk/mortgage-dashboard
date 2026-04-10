@@ -1,30 +1,12 @@
 import prisma from '@/lib/db';
 import Link from 'next/link';
+import RoutingBadge from '@/components/RoutingBadge';
 
-// This runs on the server and fetches leads from the database
 async function getLeads() {
   const leads = await prisma.lead.findMany({
     orderBy: { createdAt: 'desc' }
   });
   return leads;
-}
-
-// Colour coding for each routing type
-function RoutingBadge({ routing }) {
-  const styles = {
-    HOT: 'bg-red-100 text-red-700',
-    WARM: 'bg-orange-100 text-orange-700',
-    COLD: 'bg-blue-100 text-blue-700',
-    default: 'bg-gray-100 text-gray-600',
-  };
-
-  const style = styles[routing] || styles.default;
-
-  return (
-    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${style}`}>
-      {routing || 'Qualifying'}
-    </span>
-  );
 }
 
 export default async function DashboardPage() {

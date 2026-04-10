@@ -28,6 +28,9 @@ model Lead {
   updatedAt          DateTime  @updatedAt
 
   nurtureEntries NurtureEntry[]
+
+  @@index([createdAt])
+  @@index([routing])
 }
 
 model NurtureEntry {
