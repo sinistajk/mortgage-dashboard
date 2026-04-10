@@ -17,6 +17,7 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Hot lead banner pulse glow */
@@ -55,4 +56,25 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #cbd5e1;
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background: #2d2b40;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3d3a50;
+}
+
+/* Smooth transitions for theme changes */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+}
+
+/* Exclude transitions that would feel sluggish */
+[class*="animate-"], button, a, input, .transition-all, .transition-colors, .transition-transform {
+  transition-property: revert;
 }

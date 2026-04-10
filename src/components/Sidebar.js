@@ -2,19 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTheme } from '@/components/ThemeProvider';
 
 function HomeIcon({ className }) {
   return (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-    </svg>
-  );
-}
-
-function UsersIcon({ className }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.75}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
     </svg>
   );
 }
@@ -45,7 +38,6 @@ function CogIcon({ className }) {
 
 const navItems = [
   { href: '/', label: 'Dashboard', Icon: HomeIcon },
-  { href: '/leads', label: 'Leads', Icon: UsersIcon },
   { href: '/nurture', label: 'Nurture Queue', Icon: MailIcon },
   { href: '/activity', label: 'Activity', Icon: ClockIcon },
   { href: '/settings', label: 'Settings', Icon: CogIcon },
@@ -53,23 +45,24 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { t } = useTheme();
 
   return (
     <aside
-      className="flex-shrink-0 flex flex-col h-screen overflow-y-auto"
-      style={{ width: '240px', background: '#0f2044' }}
+      className="flex-shrink-0 flex flex-col h-screen overflow-y-auto transition-colors duration-300"
+      style={{ width: '240px', background: t.sidebar }}
     >
       {/* Logo */}
-      <div className="p-5 flex items-center gap-3" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+      <div className="p-5 flex items-center gap-3" style={{ borderBottom: `1px solid ${t.sidebarBorder}` }}>
         <div
           className="flex items-center justify-center w-9 h-9 rounded-xl text-white font-bold text-base flex-shrink-0"
-          style={{ background: '#4d9fff' }}
+          style={{ background: t.accent }}
         >
           A
         </div>
         <div>
           <p className="text-white font-bold text-sm leading-none tracking-wide">APEX</p>
-          <p className="text-xs mt-0.5" style={{ color: '#93c5fd' }}>Mortgage AI</p>
+          <p className="text-xs mt-0.5" style={{ color: t.sidebarBadgeText }}>Mortgage AI</p>
         </div>
       </div>
 
@@ -83,15 +76,15 @@ export default function Sidebar() {
       {/* Nav items */}
       <nav className="flex-1 px-3 space-y-0.5">
         {navItems.map(({ href, label, Icon }) => {
-          const isActive = pathname === href || (href === '/leads' && pathname === '/');
+          const isActive = pathname === href;
           return (
             <Link
               key={href}
               href={href}
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-150"
               style={{
-                color: isActive ? '#ffffff' : 'rgba(255,255,255,0.55)',
-                background: isActive ? 'rgba(77,159,255,0.18)' : 'transparent',
+                color: isActive ? t.sidebarActiveText : t.sidebarText,
+                background: isActive ? t.sidebarActiveBg : 'transparent',
                 fontWeight: isActive ? '600' : '400',
               }}
             >
@@ -100,7 +93,7 @@ export default function Sidebar() {
               {label === 'Nurture Queue' && (
                 <span
                   className="ml-auto text-xs font-semibold px-1.5 py-0.5 rounded-full"
-                  style={{ background: 'rgba(77,159,255,0.25)', color: '#93c5fd' }}
+                  style={{ background: t.sidebarBadgeBg, color: t.sidebarBadgeText }}
                 >
                   10
                 </span>
@@ -111,14 +104,14 @@ export default function Sidebar() {
       </nav>
 
       {/* Divider */}
-      <div className="mx-4 my-2" style={{ height: '1px', background: 'rgba(255,255,255,0.08)' }} />
+      <div className="mx-4 my-2" style={{ height: '1px', background: t.sidebarBorder }} />
 
       {/* Broker profile */}
       <div className="p-4">
         <div className="flex items-center gap-3">
           <div
             className="w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0"
-            style={{ background: '#4d9fff' }}
+            style={{ background: t.accent }}
           >
             JB
           </div>
@@ -126,13 +119,14 @@ export default function Sidebar() {
             <p className="text-white text-sm font-semibold leading-none truncate">John Broker</p>
             <p className="text-xs mt-0.5 truncate" style={{ color: 'rgba(255,255,255,0.4)' }}>Senior Broker</p>
           </div>
-          <button
+          <Link
+            href="/settings"
             className="ml-auto flex-shrink-0 p-1 rounded-md transition-colors"
             style={{ color: 'rgba(255,255,255,0.35)' }}
-            title="Account settings"
+            title="Settings"
           >
             <CogIcon className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
       </div>
     </aside>
